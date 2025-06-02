@@ -1,0 +1,12 @@
+services:
+  ansible:
+    image: williamyeh/ansible:alpine3
+    volumes:
+      - ./playbooks:/ansible/playbooks
+      - ./ssh:/root/.ssh
+    working_dir: /ansible/playbooks
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "tail -f /dev/null"]
+    environment:
+      - ANSIBLE_HOST_KEY_CHECKING=False
+    platform: linux/amd64
