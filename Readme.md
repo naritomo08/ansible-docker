@@ -54,7 +54,7 @@ ansible_user=naritomo
 ansible_ssh_private_key_file=/root/.ssh/id_ed25519_ansible
 ansible_python_interpreter=/usr/bin/python3
 
-[ansible-hosts]
+[ansible_hosts]
 <ターゲットのホスト名・IPアドレス>
 ```
 
