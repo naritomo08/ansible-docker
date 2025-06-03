@@ -21,7 +21,7 @@ playbooksフォルダ内に動かしたいplaybookを置く。
 
 ```
 cd ssh
-ssh-keygen -t ed25519 -C "ansible用鍵 (ansible-project/ssh)" -f id_ed25519_ansible
+ssh-keygen -t ed25519 -C "ansible-docker" -f id_ed25519_ansible
 →途中でパスワード聞かれるが、空パスワードでいい。
 chmod 700 .
 chmod 600 id_ed25519_ansible
