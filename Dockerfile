@@ -25,7 +25,7 @@ RUN curl -Lo /tmp/session-manager-plugin.deb \
 # 3) Python venv ＋ Ansible / boto3
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install "ansible-core>=2.16,<2.17" boto3 && \
+    /opt/venv/bin/pip install "ansible-core>=2.17,<2.18" boto3 && \
     /opt/venv/bin/ansible-galaxy collection install amazon.aws
 
 # 4) venv を PATH に追加
