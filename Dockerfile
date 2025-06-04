@@ -1,46 +1,37 @@
-# ───────────────────────────────────────────────────────
-# Dockerfile (Alpine 3.20) for Ansible + boto3 + AWS SSM
-# ───────────────────────────────────────────────────────
-FROM alpine:3.20
+# ───────────────────────────────────────────────
+# Ubuntu + Ansible + AWS SSM (Session Manager)
+# tested: 2025-06-04
+# ───────────────────────────────────────────────
+FROM ubuntu:22.04
 
-# 1) 基本パッケージを apk でインストール
-RUN apk update && \
-    apk add --no-cache \
-        python3        \
-        py3-pip        \
-        openssh-client \
-        git            \
-        curl           \
-        unzip          \
-        groff          \
-        less
+# 1) 必要パッケージを APT で導入
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+        python3 python3-venv python3-pip \
+        curl unzip gnupg2 ca-certificates \
+        git openssh-client less groff jq \
+        awscli  # ← v1.34.* が入る（1.16.12 以上なら OK） :contentReference[oaicite:0]{index=0} \
+    && rm -rf /var/lib/apt/lists/*
 
-# 2) Python 仮想環境を /opt/venv に作成し、ansible-core と boto3 を入れる
+# 2) Session Manager Plugin を .deb でインストール
+#    (Ubuntu 公式 repo にはまだ無い)
+RUN curl -Lo /tmp/session-manager-plugin.deb \
+        "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" \
+        && dpkg -i /tmp/session-manager-plugin.deb \
+        && rm /tmp/session-manager-plugin.deb  # :contentReference[oaicite:1]{index=1}
+
+# 3) Python venv ＋ Ansible / boto3
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install --no-cache-dir "ansible-core>=2.16,<2.17" boto3
+    /opt/venv/bin/pip install "ansible-core>=2.16,<2.17" boto3 && \
+    /opt/venv/bin/ansible-galaxy collection install amazon.aws
 
-# 3) 仮想環境の bin を PATH に追加して ansible コマンドを使えるようにする
+# 4) venv を PATH に追加
 ENV PATH="/opt/venv/bin:${PATH}"
 
-# 4) community.aws コレクションをインストール（aws_ssm プラグインが含まれる）
-RUN ansible-galaxy collection install amazon.aws
-
-# 5) Session Manager プラグインをダウンロードしてインストール
-#RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.zip" \
-    #-o "/tmp/session-manager-plugin.zip" && \
-    #unzip /tmp/session-manager-plugin.zip -d /tmp/session-manager-plugin && \
-    #mv /tmp/session-manager-plugin/session-manager-plugin /usr/local/bin/session-manager-plugin && \
-    #chmod +x /usr/local/bin/session-manager-plugin && \
-    #rm -rf /tmp/session-manager-plugin /tmp/session-manager-plugin.zip
-
-# 6) 動作確認（オプション）
-#RUN session-manager-plugin --version && \
-    #ansible --version && \
-    #python3 -c "import boto3; print('boto3:', boto3.__version__)"
-
-# 7) 作業ディレクトリを /ansible/playbooks に設定
+# 5) 作業ディレクトリ
 WORKDIR /ansible/playbooks
 
-# 8) コンテナ起動時に常駐プロセスを走らせる
+# 6) デバッグ用に常駐
 ENTRYPOINT ["/bin/sh", "-c", "tail -f /dev/null"]
