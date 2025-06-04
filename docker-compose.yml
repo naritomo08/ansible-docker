@@ -4,6 +4,7 @@ services:
     volumes:
       - ./playbooks:/ansible/playbooks
       - ./ssh:/root/.ssh
+      - ./aws:/root/.aws:ro
     working_dir: /ansible/playbooks
     environment:
       - ANSIBLE_HOST_KEY_CHECKING=False
