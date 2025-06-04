@@ -12,6 +12,7 @@ RUN apt-get update && \
         curl unzip gnupg2 ca-certificates \
         git openssh-client less groff jq \
         awscli  # ← v1.34.* が入る（1.16.12 以上なら OK） :contentReference[oaicite:0]{index=0} \
+        bash bash-completion \
     && rm -rf /var/lib/apt/lists/*
 
 # 2) Session Manager Plugin を .deb でインストール
@@ -34,4 +35,4 @@ ENV PATH="/opt/venv/bin:${PATH}"
 WORKDIR /ansible/playbooks
 
 # 6) デバッグ用に常駐
-ENTRYPOINT ["/bin/sh", "-c", "tail -f /dev/null"]
+ENTRYPOINT ["bash", "-lc", "tail -f /dev/null"]

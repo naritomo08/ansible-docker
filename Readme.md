@@ -38,7 +38,7 @@ ssh-copy-id -i ssh/id_ed25519_ansible.pub <ユーザー名>@<ターゲットホ�
 ## playbook稼働
 
 ```
-docker-compose exec ansible sh
+docker-compose exec ansible bash
 ansible-playbook ...
 
 以下のコマンドで動作確認可能。
