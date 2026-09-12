@@ -3,8 +3,7 @@ services:
     build: .
     volumes:
       - ansible_playbooks:/ansible/playbooks
-      - ansible_ssh:/root/.ssh
-      - ansible_aws:/root/.aws
+      - ./ssh:/root/.ssh
     working_dir: /ansible/playbooks
     environment:
       - ANSIBLE_HOST_KEY_CHECKING=False
@@ -13,5 +12,3 @@ services:
 
 volumes:
   ansible_playbooks:
-  ansible_ssh:
-  ansible_aws:

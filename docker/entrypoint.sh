@@ -2,14 +2,13 @@
 set -euo pipefail
 
 SSH_DIR="${ANSIBLE_SSH_DIR:-/root/.ssh}"
-AWS_DIR="${ANSIBLE_AWS_DIR:-/root/.aws}"
 KEY_PATH="${ANSIBLE_SSH_KEY_PATH:-${SSH_DIR}/id_ed25519_ansible}"
 CA_KEY_PATH="${ANSIBLE_SSH_CA_KEY_PATH:-${SSH_DIR}/ca_user_key}"
 CERT_ID="${ANSIBLE_SSH_CERT_ID:-ansible-docker}"
 CERT_PRINCIPALS="${ANSIBLE_SSH_CERT_PRINCIPALS:-ansible,root}"
 CERT_VALIDITY="${ANSIBLE_SSH_CERT_VALIDITY:-+52w}"
 
-mkdir -p "${SSH_DIR}" "${AWS_DIR}"
+mkdir -p "${SSH_DIR}"
 chmod 700 "${SSH_DIR}"
 
 if [ ! -f "${KEY_PATH}" ]; then

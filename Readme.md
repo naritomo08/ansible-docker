@@ -2,7 +2,9 @@
 
 Ansible を稼働するコンテナです。
 
-通常の SSH 公開鍵認証と SSH ユーザー証明書認証に必要な鍵一式は、コンテナ起動時に `/root/.ssh` へ自動作成されます。`docker-compose.yml` では名前付き volume を使うため、ホスト側の `./ssh` ディレクトリや `./aws` ディレクトリに依存せず、再起動後も同じ鍵を利用できます。
+通常の SSH 公開鍵認証と SSH ユーザー証明書認証に必要な鍵一式は、コンテナ起動時に `/root/.ssh` へ自動作成されます。`docker-compose.yml` ではワークフォルダ内の `./ssh` を `/root/.ssh` にマウントするため、コンテナを作り直しても同じ鍵と証明書を利用できます。
+
+`./ssh` は `.gitignore` に登録済みなので、SSH 秘密鍵や証明書は GitHub へ入りません。
 
 ## コンテナ稼働
 
@@ -21,7 +23,7 @@ cd /ansible/playbooks
 
 ## SSH鍵とSSH証明書
 
-コンテナ初回起動時に、以下が自動作成されます。
+コンテナ初回起動時に、以下が自動作成されます。実体はワークフォルダ内の `./ssh` に保存され、コンテナ内では `/root/.ssh` として見えます。
 
 ```bash
 /root/.ssh/id_ed25519_ansible          # Ansible 接続用秘密鍵
@@ -31,6 +33,8 @@ cd /ansible/playbooks
 /root/.ssh/id_ed25519_ansible-cert.pub # 署名済み SSH ユーザー証明書
 /root/.ssh/config                      # Ansible/ssh 用設定
 ```
+
+既存ファイルがある場合は再作成しません。証明書を作り直したい場合は、`./ssh/id_ed25519_ansible-cert.pub` を削除してからコンテナを再起動してください。鍵そのものから作り直す場合は `./ssh` を削除してから起動します。
 
 鍵の中身を確認する場合:
 
@@ -97,16 +101,6 @@ ansible_python_interpreter=/usr/bin/python3
 ```
 
 SSH 証明書は `/root/.ssh/config` で `CertificateFile /root/.ssh/id_ed25519_ansible-cert.pub` として設定済みです。
-
-## AWS認証情報
-
-AWS CLI や SSM Session Manager を使う場合は、コンテナ内の `/root/.aws` に認証情報を配置します。
-
-```bash
-docker-compose exec ansible aws configure
-```
-
-認証情報も名前付き volume `ansible_aws` に保存されます。
 
 ## コンテナ停止
 
