@@ -36,16 +36,15 @@ cd /ansible/playbooks
 
 既存の鍵がある場合は再作成しません。`config` は起動時に自動生成され、上書きされます。鍵を作り直す場合は `./ssh` を削除してから起動します。
 
-### 秘密鍵を編集する場合
+### 秘密鍵/公開鍵を編集する場合
 
 秘密鍵はホスト側で権限を広げず、コンテナに入って編集してください。既存の SSH 鍵に差し替える場合も同じ手順です。
 
 ```bash
 docker compose exec --user root ansible bash
-vim /root/.ssh/id_ed25519_ansible
+vi /root/.ssh/id_ed25519_ansible
 chmod 600 /root/.ssh/id_ed25519_ansible
-# 編集後の秘密鍵に対応する公開鍵を生成
-ssh-keygen -y -f /root/.ssh/id_ed25519_ansible > /root/.ssh/id_ed25519_ansible.pub
+vi /root/.ssh/id_ed25519_ansible.pub
 chmod 644 /root/.ssh/id_ed25519_ansible.pub
 exit
 ```
@@ -101,6 +100,17 @@ ansible_python_interpreter=/usr/bin/python3
 ```
 
 `Permission denied (publickey,...)` が出る場合は、接続先ユーザー名と公開鍵の登録先ユーザーが一致しているか確認してください。
+
+`Please login as the user "naritomo" rather than the user "root".` が出る場合は、接続先が root での SSH ログインを制限しています。使用する inventory に `ansible_user=naritomo` を設定し、管理者権限が必要な処理は playbook の `become: true` で実行してください。コンテナ内の実行ユーザーは root のままで構いません。
+
+`-i inventory.ini` を指定した場合、`/etc/ansible/hosts.ini` の接続ユーザー設定は引き継がれないため、その inventory に設定が必要です。ホスト単位で指定する例:
+
+```ini
+almatest2 ansible_host=192.168.11.11 ansible_user=naritomo
+almatest3 ansible_host=192.168.11.12 ansible_user=naritomo
+```
+
+sudo パスワードが必要な場合は `ansible-playbook -i inventory.ini vm_setup.yml -K` として実行します。
 
 ## コンテナ停止
 
