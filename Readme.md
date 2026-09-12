@@ -6,10 +6,12 @@ SSH 公開鍵認証に必要な鍵一式は、コンテナ起動時に `/root/.s
 
 `./ssh` は `.gitignore` に登録済みなので、SSH 秘密鍵は GitHub へ入りません。
 
+`./ssh` の権限は `755` とし、どのユーザーでもファイル一覧を表示できます。公開鍵と SSH 設定（`config`）は `644` で、ホスト側からも読み取り可能です。秘密鍵は SSH が利用できるよう `600`（所有者のみ読み書き可能）にし、編集はコンテナ内で行います。
+
 ## コンテナ稼働
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## playbook設置
@@ -18,7 +20,7 @@ playbook はホスト側の `./playbooks` に配置します。`docker-compose.y
 
 ```bash
 mkdir -p playbooks
-docker-compose exec ansible bash
+docker compose exec ansible bash
 cd /ansible/playbooks
 ```
 
@@ -32,22 +34,30 @@ cd /ansible/playbooks
 /root/.ssh/config                      # Ansible/ssh 用設定
 ```
 
-既存ファイルがある場合は再作成しません。鍵を作り直す場合は `./ssh` を削除してから起動します。
+既存の鍵がある場合は再作成しません。`config` は起動時に自動生成され、上書きされます。鍵を作り直す場合は `./ssh` を削除してから起動します。
 
-また、すでに作成しているSSH鍵を使用する場合、上記の鍵の内容を書き換えてください。
+### 秘密鍵を編集する場合
 
-鍵の中身を確認する場合:
+秘密鍵はホスト側で権限を広げず、コンテナに入って編集してください。既存の SSH 鍵に差し替える場合も同じ手順です。
 
 ```bash
-docker-compose exec ansible ssh-keygen -lf /root/.ssh/id_ed25519_ansible.pub
+docker compose exec --user root ansible bash
+vim /root/.ssh/id_ed25519_ansible
+chmod 600 /root/.ssh/id_ed25519_ansible
+# 編集後の秘密鍵に対応する公開鍵を生成
+ssh-keygen -y -f /root/.ssh/id_ed25519_ansible > /root/.ssh/id_ed25519_ansible.pub
+chmod 644 /root/.ssh/id_ed25519_ansible.pub
+exit
 ```
+
+鍵を差し替えた場合は、新しい公開鍵を接続先に登録してください。
 
 ### 公開鍵認証で使う場合
 
 ターゲットマシンの `~/.ssh/authorized_keys` に `/root/.ssh/id_ed25519_ansible.pub` の内容を登録します。
 
 ```bash
-docker-compose exec ansible ssh-copy-id -i /root/.ssh/id_ed25519_ansible.pub <ユーザー名>@<ターゲットホスト/IPアドレス>
+docker compose exec ansible ssh-copy-id -i /root/.ssh/id_ed25519_ansible.pub <ユーザー名>@<ターゲットホスト/IPアドレス>
 ```
 
 ターゲット側の権限は以下を基本にします。
@@ -60,7 +70,7 @@ chmod 600 ~/.ssh/authorized_keys
 ## playbook稼働
 
 ```bash
-docker-compose exec ansible bash
+docker compose exec ansible bash
 ansible-playbook ...
 
 以下のコマンドで動作確認可能。
@@ -95,7 +105,7 @@ ansible_python_interpreter=/usr/bin/python3
 ## コンテナ停止
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## 関連Qiita記事

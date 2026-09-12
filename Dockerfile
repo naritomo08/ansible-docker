@@ -22,7 +22,7 @@ COPY docker/entrypoint.sh /usr/local/bin/ansible-container-entrypoint
 
 RUN chmod 755 /usr/local/bin/ansible-container-entrypoint && \
     mkdir -p /ansible/playbooks /root/.ssh && \
-    chmod 700 /root/.ssh
+    chmod 755 /root/.ssh
 
 WORKDIR /ansible/playbooks
 
