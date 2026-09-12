@@ -76,8 +76,19 @@ ansible_ssh_private_key_file=/root/.ssh/id_ed25519_ansible
 ansible_python_interpreter=/usr/bin/python3
 
 [ansible_hosts]
-<ターゲットのホスト名・IPアドレス>
+<ターゲットのホスト名> ansible_host=<IPアドレス>
 ```
+
+`ansible_user` はターゲットマシンに存在し、公開鍵を登録したユーザー名に合わせてください。例えば `root` ユーザーの `~/.ssh/authorized_keys` に公開鍵を登録した場合は、以下のように変更します。
+
+```bash
+[all:vars]
+ansible_user=root
+ansible_ssh_private_key_file=/root/.ssh/id_ed25519_ansible
+ansible_python_interpreter=/usr/bin/python3
+```
+
+`Permission denied (publickey,...)` が出る場合は、接続先ユーザー名と公開鍵の登録先ユーザーが一致しているか確認してください。
 
 ## コンテナ停止
 
