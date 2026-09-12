@@ -2,13 +2,10 @@ services:
   ansible:
     build: .
     volumes:
-      - ansible_playbooks:/ansible/playbooks
+      - ./playbooks:/ansible/playbooks
       - ./ssh:/root/.ssh
     working_dir: /ansible/playbooks
     environment:
       - ANSIBLE_HOST_KEY_CHECKING=False
       - ANSIBLE_CONFIG=/etc/ansible/ansible.cfg
     platform: linux/amd64
-
-volumes:
-  ansible_playbooks:

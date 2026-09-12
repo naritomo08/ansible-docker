@@ -14,9 +14,10 @@ docker-compose up -d
 
 ## playbook設置
 
-playbook はコンテナ内の `/ansible/playbooks` に配置します。このディレクトリも名前付き volume `ansible_playbooks` なので、ホスト側に `./playbooks` ディレクトリを作りません。
+playbook はホスト側の `./playbooks` に配置します。`docker-compose.yml` で `./playbooks` をコンテナ内の `/ansible/playbooks` にマウントしているため、ホストで編集した playbook をコンテナ内からそのまま実行できます。
 
 ```bash
+mkdir -p playbooks
 docker-compose exec ansible bash
 cd /ansible/playbooks
 ```
