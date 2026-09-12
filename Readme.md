@@ -83,8 +83,6 @@ inventory(hosts.ini)について、以下の設定を基本として作成する
 ```bash
 [all:vars]
 ansible_user=ansible
-ansible_ssh_private_key_file=/root/.ssh/id_ed25519_ansible
-ansible_python_interpreter=/usr/bin/python3
 
 [ansible_hosts]
 <ターゲットのホスト名> ansible_host=<IPアドレス>
