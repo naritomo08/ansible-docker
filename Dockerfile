@@ -26,5 +26,7 @@ RUN chmod 755 /usr/local/bin/ansible-container-entrypoint && \
 
 WORKDIR /ansible/playbooks
 
+RUN ansible-galaxy collection install community.postgresql
+
 ENTRYPOINT ["/usr/local/bin/ansible-container-entrypoint"]
 CMD ["tail", "-f", "/dev/null"]
